@@ -2,7 +2,7 @@ module github.com/coreos/coreos-assembler
 
 go 1.23.0
 
-toolchain go1.24.0
+toolchain go1.24.2
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.17.1
