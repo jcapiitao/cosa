@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: cosa-init
+spec:
+  workspaces:
+  - name: source
+  params:
+    - name: git_config
+      description: ""
+      type: string
+      default: "https://github.com/coreos/fedora-coreos-config"
+    - name: variant
+      description: ""
+      type: string
+      default: "rawhide"
+    - name: yumrepos
+      description: ""
+      type: string
+      default: ""
+    - name: yumrepos_ref
+      description: ""
+      type: string
+      default: ""
+  steps:
+    - name: init
+      image: quay.io/coreos-assembler/coreos-assembler:latest
+      env:
+        - name: VARIANT
+          value: $(params.variant)
+        - name: GIT_CONFIG
+          value: $(params.git_config)
+      script: |
+        #!/usr/bin/env bash
+        commit=$(git ls-remote ${GIT_CONFIG} refs/heads/${VARIANT} | cut -d $'\t' -f 1)
+        cosa init --force --branch $ref --commit=$commit $(inputs.params.yumrepos) $(inputs.params.yumrepos_ref) $GIT_CONFIG

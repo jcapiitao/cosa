@@ -1,0 +1,50 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  annotations:
+    build.appstudio.openshift.io/repo:
+    build.appstudio.redhat.com/commit_sha: '{{revision}}'
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
+    build.appstudio.redhat.com/target_branch: '{{target_branch}}'
+    pipelinesascode.tekton.dev/cancel-in-progress: "true"
+    pipelinesascode.tekton.dev/max-keep-runs: "3"
+    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
+      == "main"
+  creationTimestamp: null
+  labels:
+    appstudio.openshift.io/application: fcos-jcapitao
+    appstudio.openshift.io/component: fcos-rawhide-jcapitao
+    pipelines.appstudio.openshift.io/type: build
+  name: fcos-rawhide-jcapitao-on-pull-request
+  namespace: coreos-tenant
+spec:
+  pipelineSpec:
+    tasks:
+    - name: cosa-init
+      params:
+        - name: git_config
+          value: "https://github.com/coreos/fedora-coreos-config"
+        - name: variant
+          value: "rawhide"
+        - name: yumrepos
+          value: ""
+        - name: yumrepos_ref
+          value: ""
+      taskSpec:
+        steps:
+          - name: init
+            image: quay.io/coreos-assembler/coreos-assembler:latest
+            env:
+              - name: VARIANT
+                value: $(params.variant)
+              - name: GIT_CONFIG
+                value: $(params.git_config)
+            script: |
+              #!/usr/bin/env bash
+              set -euxo pipefail
+              commit=$(git ls-remote ${GIT_CONFIG} refs/heads/${VARIANT} | cut -d $'\t' -f 1)
+              ref=$VARIANT
+              cosa init --force --branch $ref --commit=$commit $(inputs.params.yumrepos) $(inputs.params.yumrepos_ref) $GIT_CONFIG
+  workspaces:
+    - name: shared-workspace
+      emptyDir: {}
