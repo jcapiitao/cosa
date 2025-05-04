@@ -64,7 +64,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/clarketm/json v1.17.1 // indirect
-	github.com/containers/image/v5 v5.34.2 // indirect
+	github.com/containers/image/v5 v5.35.0 // indirect
 	github.com/containers/storage v1.57.2 // indirect
 	github.com/coreos/go-json v0.0.0-20231102161613-e49c8866685a // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
