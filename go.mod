@@ -34,7 +34,7 @@ require (
 	github.com/gophercloud/utils v0.0.0-20231010081019-80377eca5d56
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/kylelemons/godebug v1.1.0
-	github.com/packethost/packngo v0.0.0-20180426081943-80f62d78849d
+	github.com/packethost/packngo v0.31.0
 	github.com/pborman/uuid v1.2.1
 	github.com/pin/tftp v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
