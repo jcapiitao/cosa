@@ -43,7 +43,7 @@ require (
 	github.com/vincent-petithory/dataurl v1.0.0
 	github.com/vishvananda/netlink v1.3.0
 	github.com/vishvananda/netns v0.0.5
-	github.com/vmware/govmomi v0.49.0
+	github.com/vmware/govmomi v0.50.0
 	github.com/xeipuuv/gojsonschema v1.2.0
 	golang.org/x/crypto v0.36.0
 	golang.org/x/net v0.37.0
