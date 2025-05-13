@@ -12,7 +12,7 @@ metadata:
       == "main"
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: fcos-jcapitao
+    appstudio.openshift.io/application: fcos-pipeline-jcapitao
     appstudio.openshift.io/component: cosa-jcapitao
     pipelines.appstudio.openshift.io/type: build
   name: cosa-jcapitao-on-pull-request
