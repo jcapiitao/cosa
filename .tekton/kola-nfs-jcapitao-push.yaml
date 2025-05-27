@@ -25,9 +25,9 @@ spec:
   - name: output-image
     value: quay.io/konflux-fedora/coreos-tenant/kola-nfs-jcapitao:{{revision}}
   - name: dockerfile
-    value: Dockerfile
+    value: ./tests/containers/nfs/Dockerfile
   - name: path-context
-    value: tests/containers/nfs
+    value: .
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
