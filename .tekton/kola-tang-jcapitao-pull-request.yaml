@@ -9,8 +9,7 @@ metadata:
     pipelinesascode.tekton.dev/cancel-in-progress: "true"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
-      == "main" && ( "./tests/containers/tang/***".pathChanged() || ".tekton/kola-tang-jcapitao-pull-request.yaml".pathChanged()
-      || "Dockerfile".pathChanged() )
+      == "main"
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: coreos-assembler-jcapitao
@@ -29,9 +28,9 @@ spec:
   - name: image-expires-after
     value: 5d
   - name: dockerfile
-    value: Dockerfile
+    value: ./tests/containers/tang/Dockerfile
   - name: path-context
-    value: tests/containers/tang
+    value: .
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
