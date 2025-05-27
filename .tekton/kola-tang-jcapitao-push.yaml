@@ -25,7 +25,7 @@ spec:
   - name: output-image
     value: quay.io/konflux-fedora/coreos-tenant/kola-tang-jcapitao:{{revision}}
   - name: dockerfile
-    value: ./tests/containers/tang/Dockerfile
+    value: ./tests/containers/tang/Containerfile
   - name: path-context
     value: .
   pipelineSpec:
