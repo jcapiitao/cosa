@@ -25,7 +25,7 @@ spec:
   - name: output-image
     value: quay.io/konflux-fedora/coreos-tenant/kola-targetcli-jcapitao:{{revision}}
   - name: dockerfile
-    value: ./tests/containers/targetcli/Dockerfile
+    value: ./tests/containers/targetcli/Containerfile
   - name: path-context
     value: .
   pipelineSpec:
