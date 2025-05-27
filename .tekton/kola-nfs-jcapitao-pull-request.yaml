@@ -28,7 +28,7 @@ spec:
   - name: image-expires-after
     value: 5d
   - name: dockerfile
-    value: ./tests/containers/nfs/Dockerfile
+    value: ./tests/containers/nfs/Containerfile
   - name: path-context
     value: .
   pipelineSpec:

@@ -25,7 +25,7 @@ spec:
   - name: output-image
     value: quay.io/konflux-fedora/coreos-tenant/kola-nfs-jcapitao:{{revision}}
   - name: dockerfile
-    value: ./tests/containers/nfs/Dockerfile
+    value: ./tests/containers/nfs/Containerfile
   - name: path-context
     value: .
   pipelineSpec:
