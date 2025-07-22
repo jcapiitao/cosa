@@ -75,7 +75,9 @@ type Media struct {
 	Metal        *PlatformBase     `json:"metal"`
 	Nutanix      *PlatformBase     `json:"nutanix"`
 	Openstack    *PlatformBase     `json:"openstack"`
+	OracleCloud  *PlatformBase     `json:"oraclecloud"`
 	PowerVS      *PlatformIBMCloud `json:"powervs"`
+	ProxmoxVE    *PlatformBase     `json:"proxmoxve"`
 	Qemu         *PlatformBase     `json:"qemu"`
 	QemuSecex    *PlatformBase     `json:"qemu-secex"`
 	VirtualBox   *PlatformBase     `json:"virtualbox"`

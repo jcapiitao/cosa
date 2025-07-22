@@ -81,6 +81,21 @@ func (releaseArch *Arch) toStreamArch(rel *Release) stream.Arch {
 			}
 			cloudImages.Aws = &awsAmis
 		}
+
+		if relRHCOSExt != nil {
+			if relRHCOSExt.AwsWinLi != nil {
+				if relRHCOSExt.AwsWinLi.Images != nil {
+					awsWinLIAmis := rhcos.ReplicatedImage{
+						Regions: make(map[string]rhcos.SingleImage),
+					}
+					for region, ami := range relRHCOSExt.AwsWinLi.Images {
+						si := rhcos.SingleImage{Release: rel.Release, Image: ami.Image}
+						awsWinLIAmis.Regions[region] = si
+					}
+					rhcosExt.AwsWinLi = &awsWinLIAmis
+				}
+			}
+		}
 	}
 
 	if releaseArch.Media.Azure != nil {
@@ -217,6 +232,13 @@ func (releaseArch *Arch) toStreamArch(rel *Release) stream.Arch {
 		}
 	}
 
+	if releaseArch.Media.OracleCloud != nil {
+		artifacts["oraclecloud"] = stream.PlatformArtifacts{
+			Release: rel.Release,
+			Formats: mapFormats(releaseArch.Media.OracleCloud.Artifacts),
+		}
+	}
+
 	// if releaseArch.Media.Packet != nil {
 	// 	packet := StreamMediaDetails{
 	// 		Release: rel.Release,
@@ -248,6 +270,13 @@ func (releaseArch *Arch) toStreamArch(rel *Release) stream.Arch {
 
 			}
 			cloudImages.PowerVS = &powervsObjects
+		}
+	}
+
+	if releaseArch.Media.ProxmoxVE != nil {
+		artifacts["proxmoxve"] = stream.PlatformArtifacts{
+			Release: rel.Release,
+			Formats: mapFormats(releaseArch.Media.ProxmoxVE.Artifacts),
 		}
 	}
 
