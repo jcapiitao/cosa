@@ -19,7 +19,7 @@ type Index struct {
 
 // IndexRelease is a "release pointer" from a release index
 type IndexRelease struct {
-	Commits     []IndexReleaseCommit   `json:"commits"`
+	Commits     []IndexReleaseCommit   `json:"commits,omitempty"`
 	OciImages   []IndexReleaseOciImage `json:"oci-images,omitempty"`
 	Version     string                 `json:"version"`
 	MetadataURL string                 `json:"metadata"`
@@ -52,7 +52,7 @@ type Metadata struct {
 
 // Arch release details
 type Arch struct {
-	Commit               string               `json:"commit"`
+	Commit               string               `json:"commit,omitempty"`
 	OciImage             *ContainerImage      `json:"oci-image,omitempty"`
 	Media                Media                `json:"media"`
 	RHELCoreOSExtensions *relrhcos.Extensions `json:"rhel-coreos-extensions,omitempty"`
@@ -75,7 +75,9 @@ type Media struct {
 	Metal        *PlatformBase     `json:"metal"`
 	Nutanix      *PlatformBase     `json:"nutanix"`
 	Openstack    *PlatformBase     `json:"openstack"`
+	OracleCloud  *PlatformBase     `json:"oraclecloud"`
 	PowerVS      *PlatformIBMCloud `json:"powervs"`
+	ProxmoxVE    *PlatformBase     `json:"proxmoxve"`
 	Qemu         *PlatformBase     `json:"qemu"`
 	QemuSecex    *PlatformBase     `json:"qemu-secex"`
 	VirtualBox   *PlatformBase     `json:"virtualbox"`
