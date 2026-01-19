@@ -148,6 +148,16 @@ func translateResource(from Resource, options common.TranslateOptions) (to types
 			r.AddOnError(c, err)
 			return
 		}
+		// Validating the contents of the local file from here since there is no way to
+		// get both the filename and filedirectory in the Validate context
+		if strings.HasPrefix(c.String(), "$.ignition.config") {
+			rp, err := ValidateIgnitionConfig(c, contents)
+			r.Merge(rp)
+			if err != nil {
+				return
+			}
+		}
+
 		src, compression, err := baseutil.MakeDataURL(contents, to.Compression, !options.NoResourceAutoCompression)
 		if err != nil {
 			r.AddOnError(c, err)
@@ -323,29 +333,69 @@ func (c Config) processTrees(ret *types.Config, options common.TranslateOptions)
 			destBaseDir = *tree.Path
 		}
 
-		walkTree(yamlPath, &ts, &r, t, srcBaseDir, destBaseDir, options)
+		walkTree(yamlPath, &ts, &r, t, treeWalkOptions{
+			srcBaseDir:       srcBaseDir,
+			destBaseDir:      destBaseDir,
+			TranslateOptions: options,
+			user:             tree.User,
+			group:            tree.Group,
+			fileMode:         tree.FileMode,
+			dirMode:          tree.DirMode,
+		})
 	}
 	return ts, r
 }
 
-func walkTree(yamlPath path.ContextPath, ts *translate.TranslationSet, r *report.Report, t *nodeTracker, srcBaseDir, destBaseDir string, options common.TranslateOptions) {
+type treeWalkOptions struct {
+	srcBaseDir  string
+	destBaseDir string
+	common.TranslateOptions
+	user     NodeUser
+	group    NodeGroup
+	fileMode *int
+	dirMode  *int
+}
+
+func walkTree(yamlPath path.ContextPath, ts *translate.TranslationSet, r *report.Report, t *nodeTracker, options treeWalkOptions) {
 	// The strategy for errors within WalkFunc is to add an error to
 	// the report and return nil, so walking continues but translation
 	// will fail afterward.
-	err := filepath.Walk(srcBaseDir, func(srcPath string, info os.FileInfo, err error) error {
+	err := filepath.Walk(options.srcBaseDir, func(srcPath string, info os.FileInfo, err error) error {
 		if err != nil {
 			r.AddOnError(yamlPath, err)
 			return nil
 		}
-		relPath, err := filepath.Rel(srcBaseDir, srcPath)
+		relPath, err := filepath.Rel(options.srcBaseDir, srcPath)
 		if err != nil {
 			r.AddOnError(yamlPath, err)
 			return nil
 		}
-		destPath := slashpath.Join(destBaseDir, filepath.ToSlash(relPath))
+		destPath := slashpath.Join(options.destBaseDir, filepath.ToSlash(relPath))
 
 		if info.Mode().IsDir() {
-			return nil
+			// If nothing custom is required we skip directories generation
+			if options.dirMode == nil && options.user == (NodeUser{}) && options.group == (NodeGroup{}) {
+				return nil
+			}
+
+			if t.Exists(destPath) {
+				r.AddOnError(yamlPath, common.ErrNodeExists)
+				return nil
+			}
+			mode := util.IntToPtr(0755)
+			if options.dirMode != nil {
+				mode = options.dirMode
+			}
+			i, dir := t.AddDir(types.Directory{
+				Node: createNode(destPath, options.user, options.group),
+				DirectoryEmbedded1: types.DirectoryEmbedded1{
+					Mode: mode,
+				},
+			})
+			ts.AddFromCommonSource(yamlPath, path.New("json", "storage", "directories", i), dir)
+			if i == 0 {
+				ts.AddTranslation(yamlPath, path.New("json", "storage", "directories"))
+			}
 		} else if info.Mode().IsRegular() {
 			i, file := t.GetFile(destPath)
 			if file != nil {
@@ -359,9 +409,7 @@ func walkTree(yamlPath path.ContextPath, ts *translate.TranslationSet, r *report
 					return nil
 				}
 				i, file = t.AddFile(types.File{
-					Node: types.Node{
-						Path: destPath,
-					},
+					Node: createNode(destPath, options.user, options.group),
 				})
 				ts.AddFromCommonSource(yamlPath, path.New("json", "storage", "files", i), file)
 				if i == 0 {
@@ -390,6 +438,9 @@ func walkTree(yamlPath path.ContextPath, ts *translate.TranslationSet, r *report
 				if info.Mode()&0111 != 0 {
 					mode = 0755
 				}
+				if options.fileMode != nil {
+					mode = *options.fileMode
+				}
 				file.Mode = &mode
 				ts.AddTranslation(yamlPath, path.New("json", "storage", "files", i, "mode"))
 			}
@@ -406,9 +457,7 @@ func walkTree(yamlPath path.ContextPath, ts *translate.TranslationSet, r *report
 					return nil
 				}
 				i, link = t.AddLink(types.Link{
-					Node: types.Node{
-						Path: destPath,
-					},
+					Node: createNode(destPath, options.user, options.group),
 				})
 				ts.AddFromCommonSource(yamlPath, path.New("json", "storage", "links", i), link)
 				if i == 0 {
@@ -429,6 +478,20 @@ func walkTree(yamlPath path.ContextPath, ts *translate.TranslationSet, r *report
 		return nil
 	})
 	r.AddOnError(yamlPath, err)
+}
+
+func createNode(destPath string, user NodeUser, group NodeGroup) types.Node {
+	return types.Node{
+		Path: destPath,
+		User: types.NodeUser{
+			ID:   user.ID,
+			Name: user.Name,
+		},
+		Group: types.NodeGroup{
+			ID:   group.ID,
+			Name: group.Name,
+		},
+	}
 }
 
 func (c Config) addMountUnits(config *types.Config, ts *translate.TranslationSet) {
